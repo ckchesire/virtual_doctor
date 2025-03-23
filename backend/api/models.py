@@ -32,12 +32,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Role(models.TextChoices):
         PATIENT = "patient", _("Patient")
         DOCTOR = "doctor", _("Doctor")
+        PENDING_DOCTOR = "pending_doctor", _("Pending Doctor") # New status
         ADMIN = "admin", _("Admin")
     
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=150, blank=False)
-    last_name = models.CharField(max_length=150, blank=False)
-    role = models.CharField(max_length=10, choices=Role.choices, default=Role.PATIENT)
+    role = models.CharField(max_length=15, choices=Role.choices, default=Role.PATIENT)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     last_login = models.DateTimeField(blank=True, null=True)
@@ -52,5 +51,80 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        full_name = f"{self.first_name} {self.last_name}".strip()
-        return f"{full_name} - {self.email} ({self.role})"  
+        return f"{self.email} ({self.role})"  
+
+class Patient(models.Model):
+    """Model extends the User model for patient-specific information
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField(null=True, blank=True) # allow null values
+    gender = models.CharField(max_length=10, choices=[("male", "Male"), ("female", "Female")])
+    emergency_contact = models.CharField(max_length=15)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} (Patient)"
+
+class Doctor(models.Model):
+    """Model extends Users for doctor-specific information
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    specialty = models.CharField(max_length=255)
+    license_number = models.CharField(max_length=50, unique=True)
+    bio = models.TextField()
+    years_experience = models.IntegerField()
+
+    def __str__(self):
+        return f"Dr. {self.first_name} {self.last_name} - {self.specialty}"
+
+class DoctorAvailability(models.Model):
+    """Stores doctor availability slots
+    """
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    day_of_week = models.CharField(max_length=10, choices= [
+        ("Monday","Monday"), ("Tuesday", "Tuesday"), ("Wednesday", "Wednesday"),
+        ("Thursday", "Thursday"), ("Friday", "Friday"), ("Saturday", "Saturday"),
+        ("Sunday", "Sunday")
+    ])
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self):
+        return f"{self.doctor} - {self.day_of_week}: {self.start_time} to {self.end_time}"
+
+class Appointment(models.Model):
+    """Manages doctor-patient appointments
+    """
+    STATUS_CHOICES = [
+        ("scheduled", "Scheduled"),
+        ("completed", "Completed"),
+        ("canceled", "Canceled")
+    ]
+
+    appointment_id = models.AutoField(primary_key=True)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    appointment_datetime = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="scheduled")
+    appointment_type = models.CharField(max_length=255)
+    reason = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"Appointment: {self.patient} with {self.doctor} on {self.appointment_datetime}"
+
+class Consultation(models.Model):
+    """Track telemedicine consultations
+    """
+    consultation_id = models.AutoField(primary_key=True)
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    status = models.CharField(max_length=50, choices=[("ongoing", "Ongoing"), ("completed", "Completed")])
+    consultation_notes = models.TextField()
+
+    def __str__(self):
+        return f"Consultation {self.consultation_id} - {self.status}"
