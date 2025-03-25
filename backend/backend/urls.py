@@ -7,6 +7,7 @@ from api.views import (
 from api.views import ( 
     PatientListView, DoctorListView, 
     AppointmentListView, ConsultationListView,
+    ConsultationCreateView, ConsultationUpdateView,
     PendingDoctorListView, ApproveDoctorView
 )
 
@@ -20,7 +21,10 @@ urlpatterns = [
     path("api/patients/", PatientListView.as_view(), name="patients"),
     path("api/doctors/", DoctorListView.as_view(), name="doctors"),
     path("api/appointments/", AppointmentListView.as_view(), name="appointments"),
-    path("api/consultations/", ConsultationListView.as_view(), name="consultations"),
+    path("api/consultations/<int:pk>/", ConsultationListView.as_view(), name="list_consultation"),
+    path("api/consultations/<int:pk>/", ConsultationListView.as_view(), name="list_consultation"),
+    path("api/consultations/", ConsultationCreateView.as_view(), name="list_consultations"),
+    path("api/consultations/<int:pk>/", ConsultationUpdateView.as_view(), name="update_consultations"),
     path("api/admin/pending-doctors/", PendingDoctorListView.as_view(), name="pending_doctors"),
     path("api/admin/approve-doctor/<int:pk>/", ApproveDoctorView.as_view(), name="approve_doctor"),
     

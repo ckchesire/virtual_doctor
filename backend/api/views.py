@@ -139,6 +139,65 @@ class ConsultationListView(generics.ListCreateAPIView):
     serializer_class = ConsultationSerializer
     permission_classes = [IsAuthenticated]
 
+class ConsultationCreateView(generics.CreateAPIView):
+    """Allow doctors to start a consultation
+    """
+    queryset = Consultation.objects.all()
+    serializer_class = ConsultationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        """Ensure only doctors can start a consultation
+        """
+        user = self.request.user
+        if user.role != "doctor":
+            return Response({"error": "Only doctors can start a consultation"}, status=status.HTTP_403_FORBIDDEN)
+        
+        appointment_id = self.request.data.get("appointment")
+        try:
+            appointment = Appointment.objects.get(id=appointment_id)
+        except Appointment.DoesNotExist:
+            return Response({"error": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        if Consultation.objects.filter(appointment=appointment).exists():
+            return Response({"error": "Consultation already exists for this appointment"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save(appointment=appointment)
+class ConsultationUpdateView(generics.UpdateAPIView):
+    """Allow doctors to update and complete a consultation
+    """
+    queryset = Consultation.objects.all()
+    serializer_class = ConsultationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        """Ensure only doctors can complete a consultation
+        """
+        user = self.request.user
+        if user.role != "doctor":
+            return Response({"error": "Only doctors can complete consultations"}, 
+                           status=status.HTTP_403_FORBIDDEN)
+        
+        try:
+            consultation = self.get_object()
+        except Consultation.DoesNotExist:
+            return Response({"error": "Consultation not found"}, 
+                           status=status.HTTP_404_NOT_FOUND)
+
+        # Ensure consultation is ongoing before updating
+        if consultation.status != "ongoing":
+            return Response({"error": "Consultation is not ongoing"}, 
+                           status=status.HTTP_400_BAD_REQUEST)
+        
+        consultation.end_time = request.data.get("end_time", consultation.end_time)
+        consultation.status = "completed"
+        consultation.consultation_notes = request.data.get("consultation_notes", 
+                                                         consultation.consultation_notes)
+        consultation.save()
+
+        return Response(ConsultationSerializer(consultation).data, 
+                       status=status.HTTP_200_OK)
+                       
 class PendingDoctorListView(generics.ListAPIView):
     """List all users who registered as doctors but are not approved yet
     """

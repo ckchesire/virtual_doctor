@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     "api",
     "rest_framework",
     "rest_framework_simplejwt",
-    "corsheaders"
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -149,3 +149,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWS_CREDENTIALS = True
+
+# Specify origin
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173"
+]

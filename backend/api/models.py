@@ -62,6 +62,8 @@ class Patient(models.Model):
     date_of_birth = models.DateField(null=True, blank=True) # allow null values
     gender = models.CharField(max_length=10, choices=[("male", "Male"), ("female", "Female")])
     emergency_contact = models.CharField(max_length=15)
+    medical_history = models.TextField(null=True)
+
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} (Patient)"
@@ -120,11 +122,13 @@ class Consultation(models.Model):
     """Track telemedicine consultations
     """
     consultation_id = models.AutoField(primary_key=True)
-    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    appointment_id = models.OneToOneField(Appointment, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    status = models.CharField(max_length=50, choices=[("ongoing", "Ongoing"), ("completed", "Completed")])
-    consultation_notes = models.TextField()
+    end_time = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(max_length=50, choices=[
+        ("ongoing", "Ongoing"),
+        ("completed", "Completed")])
+    consultation_notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"Consultation {self.consultation_id} - {self.status}"
