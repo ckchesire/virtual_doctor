@@ -62,7 +62,7 @@ class Patient(models.Model):
     date_of_birth = models.DateField(null=True, blank=True) # allow null values
     gender = models.CharField(max_length=10, choices=[("male", "Male"), ("female", "Female")])
     emergency_contact = models.CharField(max_length=15)
-    medical_history = models.TextField(null=True)
+    medical_history = models.TextField(null=True, blank=True) # allow null values
 
 
     def __str__(self):

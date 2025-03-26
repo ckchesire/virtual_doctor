@@ -83,6 +83,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
             patient.date_of_birth = request.data.get("date_of_birth", patient.date_of_birth)
             patient.gender = request.data.get("gender", patient.gender)
             patient.emergency_contact = request.data.get("emergency_contact", patient.emergency_contact)
+            patient.medical_history = request.data.get("medical_history", patient.medical_history)
             patient.save()
         
         # Update doctor details
