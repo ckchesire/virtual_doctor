@@ -1,0 +1,103 @@
+/* Global Styles */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --background-color: #f4f6f7;
+    --text-color: #2c3e50;
+  }
+  
+  .appointments-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header */
+  .appointments-header {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 20px;
+  }
+  
+  /* Appointments List */
+  .appointments-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .appointment-item {
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 1rem;
+  }
+  
+  .appointment-item span {
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+  
+  /* Booking Form */
+  .appointment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .appointment-form label {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+  
+  .appointment-form input,
+  .appointment-form select,
+  .appointment-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  .appointment-form textarea {
+    height: 80px;
+    resize: none;
+  }
+  
+  .appointment-form button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .appointment-form button:hover {
+    background-color: #2980b9;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .appointments-container {
+      width: 90%;
+    }
+  
+    .appointment-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+  

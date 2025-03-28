@@ -90,7 +90,7 @@ function Dashboard() {
             </div>
           ))}
           <button className="book-appointment-btn">
-            Book New Appointment
+            <a href="/appointments" >Book New Appointment</a>
           </button>
         </div>
 

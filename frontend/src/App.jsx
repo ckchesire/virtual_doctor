@@ -24,16 +24,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/logout" element={<Logout />} />  {/* Correct Logout */}
+          <Route path="/" element={<Home />} />  {/* Correct Logout */}
+
 
           {/* Protected Routes */}
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            }
-          />
           <Route 
             path="/dashboard" 
             element={

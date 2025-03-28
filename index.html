@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Doctor</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .home-page {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s ease-in-out;
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            transition: 0.3s ease-in-out;
+        }
+
+        .navbar-brand:hover {
+            color: #ecf0f1;
+            transform: scale(1.05);
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 6px;
+            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.2);
+            transition: 0.3s ease-in-out;
+        }
+
+        .navbar-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Navigation Header */
+        .navigation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .navigation-header .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .navigation-header nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .navigation-header nav ul li {
+            margin-left: 20px;
+        }
+
+        .navigation-header nav ul li a {
+            text-decoration: none;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+
+        .navigation-header nav ul li a:hover {
+            color: #007bff;
+        }
+
+        /* Intro Section */
+        .intro-section {
+            display: flex;
+            align-items: center;
+            padding: 50px 20px;
+            background-color: #f8f9fa;
+        }
+
+        .intro-content {
+            flex: 1;
+        }
+
+        .intro-content h1 {
+            font-size: 3rem;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .intro-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+
+        .intro-image {
+            flex: 1;
+        }
+
+        .intro-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .features-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .feature-card {
+            flex: 1;
+            margin: 0 15px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card.active {
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .feature-card img {
+            max-width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* About Section */
+        .about-section {
+            background-color: #f8f9fa;
+            padding: 50px 20px;
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .github-link {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        /* Team Section */
+        .team-section {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .team-members {
+            display: flex;
+            justify-content: center;
+        }
+
+        .team-member {
+            margin: 0 20px;
+        }
+
+        .team-member img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .social-links {
+            margin-top: 10px;
+        }
+
+        .social-links a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .intro-section,
+            .features-container,
+            .team-members {
+                flex-direction: column;
+            }
+
+            .feature-card,
+            .team-member {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="home-page">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="navbar-container">
+                <a href="/" class="navbar-brand">Virtual Doctor</a>
+                <div class="navbar-links">
+                    <a href="#features">Features</a>
+                    <a href="#about">About</a>
+                    <a href="#team">Team</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Intro Section -->
+        <section class="intro-section">
+            <div class="intro-content">
+                <h1>Virtual Doctor</h1>
+                <p>Revolutionizing Healthcare Through Seamless Virtual Consultations</p>
+                <a 
+                    href="https://github.com/ckchesire/virtual_doctor" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="cta-button"
+                >
+                    Learn More
+                </a>
+            </div>
+            <div class="intro-image">
+                <img src="virtual-doctor-platform.svg" alt="Virtual Doctor Platform" />
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+            <h2>Our Key Features</h2>
+            <div class="features-container">
+                <div class="feature-card active">
+                    <img src="messaging-feature-svg.svg" alt="Text-Based Consultations" />
+                    <h3>Text-Based Consultations</h3>
+                    <p>Connect with healthcare professionals through secure, real-time messaging. Get medical advice without leaving your home.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="video-consult-feature-svg.svg" alt="Video Consultations" />
+                    <h3>Video Consultations</h3>
+                    <p>Face-to-face virtual appointments with certified doctors. Comprehensive healthcare at your fingertips.</p>
+                </div>
+                <div class="feature-card">
+                    <img src="medical-records-feature-svg.svg" alt="Secure Medical Records" />
+                    <h3>Secure Medical Records</h3>
+                    <p>Your health information is private and protected. Easily access and manage your medical history online.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about-section">
+            <h2>Our Journey</h2>
+            <div class="about-content">
+                <p>
+                    The idea for Virtual Doctor was born during a challenging period in my life when accessing 
+                    healthcare became increasingly difficult. As someone living in a remote area, I experienced 
+                    firsthand the struggles of getting timely medical consultations.
+                </p>
+                <p>
+                    In 2023, after witnessing the limitations of traditional healthcare delivery, I embarked on 
+                    a mission to create a platform that would bridge the gap between patients and healthcare 
+                    professionals. This project, developed as part of my Portfolio Project for the 
+                    <a href="https://www.alxafrica.com/" target="_blank" rel="noopener noreferrer"> ALX Software Engineering Program</a>, 
+                    represents my commitment to making healthcare more accessible and convenient.
+                </p>
+                <a 
+                    href="https://github.com/ckchesire/virtual_doctor" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="github-link"
+                >
+                    View Project Repository
+                </a>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section id="team" class="team-section">
+            <h2>Meet the Team</h2>
+            <div class="team-members">
+                <div class="team-member">
+                    <img src="ckc.jpg" alt="Christian Chesire" />
+                    <h3>Christian Chesire</h3>
+                    <p>Lead Developer</p>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com/in/christian-chesire-6326b719a/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                        <a href="https://github.com/ckchesire" target="_blank" rel="noopener noreferrer">GitHub</a>
+                        <a href="https://x.com/christian_40378" target="_blank" rel="noopener noreferrer">Twitter</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2024 Virtual Doctor. All rights reserved.</p>
+            <p>A Portfolio Project for ALX Software Engineering Program</p>
+        </footer>
+    </div>
+</body>
+</html>

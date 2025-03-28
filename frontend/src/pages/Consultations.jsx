@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import "../styles/consultation.css";
+
 
 function Consultations() {
   const [consultations, setConsultations] = useState([]);
@@ -28,6 +30,7 @@ function Consultations() {
         status,
       });
       setConsultations([...consultations, response.data]); // Add to list
+      setAppointment(""); // Reset input field
     } catch (error) {
       console.error("Error starting consultation:", error);
     }
@@ -42,23 +45,34 @@ function Consultations() {
       });
 
       // Update consultations list
-      setConsultations(consultations.map((c) =>
-        c.consultation_id === id ? response.data : c
-      ));
+      setConsultations(
+        consultations.map((c) =>
+          c.consultation_id === id ? response.data : c
+        )
+      );
+      setNotes(""); // Reset notes field
     } catch (error) {
       console.error("Error completing consultation:", error);
     }
   };
 
   return (
-    <div>
-      <h2>Your Consultations</h2>
-      <ul>
+    <div className="consultations-container">
+      <h2 className="consultations-header">Your Consultations</h2>
+      <ul className="consultations-list">
         {consultations.map((c) => (
-          <li key={c.consultation_id}>
-            Appointment {c.appointment} - {c.status} - Notes: {c.consultation_notes || "N/A"}
+          <li key={c.consultation_id} className="consultation-item">
+            <span className="consultation-details">
+              <strong>Appointment:</strong> {c.appointment} - <strong>Status:</strong> {c.status}
+            </span>
+            <span className="consultation-notes">
+              <strong>Notes:</strong> {c.consultation_notes || "N/A"}
+            </span>
             {c.status === "ongoing" && (
-              <button onClick={() => handleCompleteConsultation(c.consultation_id)}>
+              <button
+                className="complete-btn"
+                onClick={() => handleCompleteConsultation(c.consultation_id)}
+              >
                 Complete Consultation
               </button>
             )}
@@ -66,17 +80,33 @@ function Consultations() {
         ))}
       </ul>
 
-      <h3>Start New Consultation</h3>
-      <form onSubmit={handleStartConsultation}>
-        <label>Appointment ID:</label>
-        <input type="text" value={appointment} onChange={(e) => setAppointment(e.target.value)} required />
+      <div className="form-section">
+        <h3 className="consultations-header">Start New Consultation</h3>
+        <form onSubmit={handleStartConsultation} className="consultation-form">
+          <label>Appointment ID:</label>
+          <input
+            type="text"
+            value={appointment}
+            onChange={(e) => setAppointment(e.target.value)}
+            required
+            placeholder="Enter appointment ID"
+          />
+          <button type="submit" className="start-btn">
+            Start Consultation
+          </button>
+        </form>
+      </div>
 
-        <button type="submit">Start Consultation</button>
-      </form>
-
-      <h3>Complete Consultation</h3>
-      <label>Notes:</label>
-      <textarea value={notes} onChange={(e) => setNotes(e.target.value)} required />
+      <div className="form-section">
+        <h3 className="consultations-header">Complete Consultation</h3>
+        <label>Notes:</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          required
+          placeholder="Enter consultation notes"
+        />
+      </div>
     </div>
   );
 }
