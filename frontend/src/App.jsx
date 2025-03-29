@@ -15,6 +15,8 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import AdminDashboard from "./pages/AdminDashboard";
 import FindDoctor from "./pages/FindDoctor";
+import ConsultationRoom from "./components/ConsultationRoom";
+import DoctorQueue from "./components/DoctorQueue";
 
 
 function App() {
@@ -67,23 +69,34 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route 
-            path="/profile" 
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/doctor-dashboard"
-            element={
-              <ProtectedRoute>
-                <DoctorDashboard />
-              </ProtectedRoute>
-            }
-          />
-          
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+              {/* Protected Route for Doctor Dashboard */}
+              <Route
+                  path="/doctor-dashboard"
+                  element={
+                      <ProtectedRoute>
+                          <DoctorDashboard />
+                      </ProtectedRoute>
+                  }
+              />
+
+              {/* Protected Route for Consultation Room */}
+              <Route
+                  path="/consultations/:consultationId"
+                  element={
+                      <ProtectedRoute>
+                          <ConsultationRoom />
+                      </ProtectedRoute>
+                  }
+              />
+    
           <Route 
           path="/find-doctor" 
           element={

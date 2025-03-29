@@ -7,8 +7,10 @@ from api.views import (
 from api.views import ( 
     PatientListView, DoctorListView, 
     AppointmentListView, ConsultationListView,
+    ConsultationListCreateView, ConsultationDetailView,
     ConsultationCreateView, ConsultationUpdateView,
-    PendingDoctorListView, ApproveDoctorView
+    PendingDoctorListView, ApproveDoctorView,
+    SendMessageView, GetMessagesView
 )
 
 urlpatterns = [
@@ -21,11 +23,16 @@ urlpatterns = [
     path("api/patients/", PatientListView.as_view(), name="patients"),
     path("api/doctors/", DoctorListView.as_view(), name="doctors"),
     path("api/appointments/", AppointmentListView.as_view(), name="appointments"),
-    path("api/consultations/<int:pk>/", ConsultationListView.as_view(), name="list_consultation"),
-    path("api/consultations/<int:pk>/", ConsultationListView.as_view(), name="list_consultation"),
-    path("api/consultations/", ConsultationCreateView.as_view(), name="list_consultations"),
+    #path("api/consultations/<int:pk>/", ConsultationListView.as_view(), name="list_consultation"),
+    path("api/consultations/", ConsultationListCreateView.as_view(), name="list_create_consultations"),
+    path("api/consultations/create/", ConsultationCreateView.as_view(), name="create_consultations"),
     path("api/consultations/<int:pk>/", ConsultationUpdateView.as_view(), name="update_consultations"),
+    path("api/consultations/<int:pk>/", ConsultationDetailView.as_view(), name="consultation_detail"),
     path("api/admin/pending-doctors/", PendingDoctorListView.as_view(), name="pending_doctors"),
     path("api/admin/approve-doctor/<int:pk>/", ApproveDoctorView.as_view(), name="approve_doctor"),
+
+    # Messaging system
+    path("api/consultations/<int:consultation_id>/messages/", GetMessagesView.as_view(), name="get_messages"),
+    path("api/consultations/<int:consultation_id>/messages/send/", SendMessageView.as_view(), name="send_message"),
     
 ]

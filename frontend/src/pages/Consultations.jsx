@@ -1,114 +1,103 @@
-import { useEffect, useState } from "react";
-import api from "../api";
-import "../styles/consultation.css";
+import axios from 'axios';
 
+// Create an Axios instance with a base URL
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-function Consultations() {
-  const [consultations, setConsultations] = useState([]);
-  const [appointment, setAppointment] = useState("");
-  const [status, setStatus] = useState("ongoing");
-  const [notes, setNotes] = useState("");
-
-  useEffect(() => {
-    const fetchConsultations = async () => {
-      try {
-        const response = await api.get("/api/consultations/");
-        setConsultations(response.data);
-      } catch (error) {
-        console.error("Error fetching consultations:", error);
-      }
-    };
-    fetchConsultations();
-  }, []);
-
-  const handleStartConsultation = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await api.post("/api/consultations/", {
-        appointment,
-        start_time: new Date().toISOString(),
-        status,
-      });
-      setConsultations([...consultations, response.data]); // Add to list
-      setAppointment(""); // Reset input field
-    } catch (error) {
-      console.error("Error starting consultation:", error);
+// Add a request interceptor to include the token in all requests
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-  };
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-  const handleCompleteConsultation = async (id) => {
-    try {
-      const response = await api.patch(`/api/consultations/${id}/`, {
-        end_time: new Date().toISOString(),
-        status: "completed",
-        consultation_notes: notes,
-      });
-
-      // Update consultations list
-      setConsultations(
-        consultations.map((c) =>
-          c.consultation_id === id ? response.data : c
-        )
-      );
-      setNotes(""); // Reset notes field
-    } catch (error) {
-      console.error("Error completing consultation:", error);
+// Add a response interceptor for global error handling
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response) {
+      // Handle server errors
+      console.error('Server error:', error.response.data);
+    } else if (error.request) {
+      // Handle no response
+      console.error('No response received:', error.message);
+    } else {
+      // Handle other errors
+      console.error('Request error:', error.message);
     }
-  };
+    return Promise.reject(error);
+  }
+);
 
-  return (
-    <div className="consultations-container">
-      <h2 className="consultations-header">Your Consultations</h2>
-      <ul className="consultations-list">
-        {consultations.map((c) => (
-          <li key={c.consultation_id} className="consultation-item">
-            <span className="consultation-details">
-              <strong>Appointment:</strong> {c.appointment} - <strong>Status:</strong> {c.status}
-            </span>
-            <span className="consultation-notes">
-              <strong>Notes:</strong> {c.consultation_notes || "N/A"}
-            </span>
-            {c.status === "ongoing" && (
-              <button
-                className="complete-btn"
-                onClick={() => handleCompleteConsultation(c.consultation_id)}
-              >
-                Complete Consultation
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+// Export commonly used API endpoints related to consultations
+export const consultationApi = {
+  // Get a list of consultations
+  fetchConsultations: async (params = {}) => {
+    try {
+      const response = await api.get('/api/consultations/', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching consultations:', error);
+      throw error;
+    }
+  },
+  
+  // Get details of a specific consultation
+  fetchConsultationDetails: async (consultationId) => {
+    try {
+      const response = await api.get(`/api/consultations/${consultationId}/`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching consultation ${consultationId}:`, error);
+      throw error;
+    }
+  },
+  
+  // Update a consultation (e.g., add notes, change status)
+  updateConsultation: async (consultationId, data) => {
+    try {
+      const response = await api.patch(`/api/consultations/${consultationId}/`, data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating consultation ${consultationId}:`, error);
+      throw error;
+    }
+  },
+  
+  // Get messages for a consultation
+  fetchConsultationMessages: async (consultationId) => {
+    try {
+      const response = await api.get(`/api/consultations/${consultationId}/messages/`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching messages for consultation ${consultationId}:`, error);
+      throw error;
+    }
+  },
+  
+  // Send a message in a consultation
+  sendMessage: async (consultationId, content) => {
+    try {
+      const response = await api.post(`/api/consultations/${consultationId}/messages/`, { content });
+      return response.data;
+    } catch (error) {
+      console.error(`Error sending message in consultation ${consultationId}:`, error);
+      throw error;
+    }
+  }
+};
 
-      <div className="form-section">
-        <h3 className="consultations-header">Start New Consultation</h3>
-        <form onSubmit={handleStartConsultation} className="consultation-form">
-          <label>Appointment ID:</label>
-          <input
-            type="text"
-            value={appointment}
-            onChange={(e) => setAppointment(e.target.value)}
-            required
-            placeholder="Enter appointment ID"
-          />
-          <button type="submit" className="start-btn">
-            Start Consultation
-          </button>
-        </form>
-      </div>
-
-      <div className="form-section">
-        <h3 className="consultations-header">Complete Consultation</h3>
-        <label>Notes:</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          required
-          placeholder="Enter consultation notes"
-        />
-      </div>
-    </div>
-  );
-}
-
-export default Consultations;
+export default api;

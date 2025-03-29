@@ -60,7 +60,7 @@ function FindDoctor() {
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
-    <div className="find-doctor-container">
+    <div className="find-doctor-container-my">
       <h2>Find a Doctor</h2>
 
       {/* Search Bar */}
@@ -69,7 +69,7 @@ function FindDoctor() {
         placeholder="Search by specialty or name..."
         value={searchTerm}
         onChange={handleSearch}
-        className="search-input"
+        className="doctor-search-input"
       />
 
       {/* Doctor List */}

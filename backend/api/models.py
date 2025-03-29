@@ -117,18 +117,31 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"Appointment: {self.patient} with {self.doctor} ({self.doctor.first_name}  {self.doctor.last_name}) on {self.appointment_datetime}"
+from django.db import models
+from django.utils import timezone
 
 class Consultation(models.Model):
-    """Track telemedicine consultations
-    """
+    """Track telemedicine consultations"""
     consultation_id = models.AutoField(primary_key=True)
-    appointment_id = models.OneToOneField(Appointment, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
+    appointment_id = models.OneToOneField("Appointment", on_delete=models.CASCADE)
+    start_time = models.DateTimeField(default=timezone.now)
     end_time = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=50, choices=[
-        ("ongoing", "Ongoing"),
-        ("completed", "Completed")])
+    status = models.CharField(
+        max_length=50,
+        choices=[("ongoing", "Ongoing"), ("completed", "Completed"), ("canceled", "Canceled")],
+        default="ongoing"
+    )
     consultation_notes = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"Consultation {self.consultation_id} - {self.status}"
+
+class Message(models.Model):
+    """Stores messages exchanged in a consultation"""
+    consultation = models.ForeignKey(Consultation, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)  # Now references User model
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.email} at {self.timestamp}: {self.content[:30]}"

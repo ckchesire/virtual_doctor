@@ -18,4 +18,30 @@ api.interceptors.request.use(
     }
 )
 
+const API_URL = "http://localhost:8000/api";
+
+export const fetchConsultations = async () => {
+    const response = await fetch(`${API_URL}/consultations/`, { headers: authHeaders() });
+    return response.json();
+};
+
+export const fetchConsultationDetails = async (consultationId) => {
+    const response = await fetch(`${API_URL}/consultations/${consultationId}/`, { headers: authHeaders() });
+    return response.json();
+};
+
+export const updateConsultation = async (consultationId, data) => {
+    const response = await fetch(`${API_URL}/consultations/${consultationId}/`, {
+        method: "PATCH",
+        headers: { ...authHeaders(), "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+    });
+    return response.json();
+};
+
+const authHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+});
+
+
 export default api

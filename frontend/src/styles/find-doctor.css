@@ -1,4 +1,4 @@
-.find-doctor-container {
+.find-doctor-container-my {
     max-width: 600px;
     margin: 20px auto;
     padding: 20px;
@@ -7,7 +7,7 @@
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
   }
   
-  .search-input {
+  .doctor-search-input {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;

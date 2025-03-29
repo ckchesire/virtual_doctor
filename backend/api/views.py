@@ -1,5 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -7,8 +8,9 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .serializers import UserSerializer
 from .permissions import IsAdmin, IsDoctorOrAdmin
 from django.shortcuts import get_object_or_404
-from .models import Patient, Doctor, Appointment, Consultation
-from .serializers import PatientSerializer, DoctorSerializer, AppointmentSerializer, ConsultationSerializer
+from .models import Patient, Doctor, Appointment, Consultation, Message
+from .serializers import PatientSerializer, DoctorSerializer, AppointmentSerializer, ConsultationSerializer, MessageSerializer
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -135,10 +137,21 @@ class AppointmentListView(generics.ListCreateAPIView):
     serializer_class = AppointmentSerializer
     permission_classes = [IsAuthenticated]
 
-class ConsultationListView(generics.ListCreateAPIView):
+class ConsultationListCreateView(generics.ListCreateAPIView):
     queryset = Consultation.objects.all()
     serializer_class = ConsultationSerializer
-    permission_classes = [IsAuthenticated]
+
+class ConsultationListView(APIView):
+    def get(self, request):
+        consultations = Consultation.objects.all()
+        serializer = ConsultationSerializer(consultations, many=True)
+        return Response(serializer.data)
+
+
+class ConsultationDetailView(generics.RetrieveAPIView):
+    queryset = Consultation.objects.all()
+    serializer_class = ConsultationSerializer
+
 
 class ConsultationCreateView(generics.CreateAPIView):
     """Allow doctors to start a consultation
@@ -163,18 +176,17 @@ class ConsultationCreateView(generics.CreateAPIView):
         if Consultation.objects.filter(appointment=appointment).exists():
             return Response({"error": "Consultation already exists for this appointment"}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer.save(appointment=appointment)
+        serializer.save(appointment=appointment, status="ongoing")
 
 class ConsultationUpdateView(generics.UpdateAPIView):
-    """Allow doctors to update and complete a consultation
-    """
+    """Allow doctors to update and complete a consultation"""
     queryset = Consultation.objects.all()
     serializer_class = ConsultationSerializer
     permission_classes = [IsAuthenticated]
+    http_method_names = ['patch', 'put']  # Ensure PUT & PATCH are allowed
 
     def update(self, request, *args, **kwargs):
-        """Ensure only doctors can complete a consultation
-        """
+        """Ensure only doctors can complete a consultation"""
         user = self.request.user
         if user.role != "doctor":
             return Response({"error": "Only doctors can complete consultations"}, 
@@ -191,15 +203,20 @@ class ConsultationUpdateView(generics.UpdateAPIView):
             return Response({"error": "Consultation is not ongoing"}, 
                            status=status.HTTP_400_BAD_REQUEST)
         
-        consultation.end_time = request.data.get("end_time", consultation.end_time)
-        consultation.status = "completed"
-        consultation.consultation_notes = request.data.get("consultation_notes", 
-                                                         consultation.consultation_notes)
-        consultation.save()
+        # Update only when consultation_notes are provided
+        if "consultation_notes" in request.data:
+            consultation.consultation_notes = request.data["consultation_notes"]
+            consultation.status = "completed"
+            consultation.end_time = request.data.get("end_time", timezone.now())  # Default to now
 
-        return Response(ConsultationSerializer(consultation).data, 
-                       status=status.HTTP_200_OK)
-                       
+            consultation.save()
+
+            return Response(ConsultationSerializer(consultation).data, 
+                           status=status.HTTP_200_OK)
+
+        return Response({"error": "Consultation notes are required to complete a consultation"}, 
+                       status=status.HTTP_400_BAD_REQUEST)
+                               
 class PendingDoctorListView(generics.ListAPIView):
     """List all users who registered as doctors but are not approved yet
     """
@@ -247,3 +264,35 @@ class ApproveDoctorView(generics.UpdateAPIView):
             {"message": "Doctor approved and profile created successfully", "doctor_id": doctor.pk},
             status=status.HTTP_200_OK
         )
+
+class SendMessageView(generics.CreateAPIView):
+    """Send a message in a consultation"""
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        consultation_id = kwargs.get("consultation_id")
+        consultation = get_object_or_404(Consultation, consultation_id=consultation_id)
+
+        sender = request.user  # ✅ Automatically assign logged-in user
+        content = request.data.get("content")
+
+        if not content:
+            return Response({"error": "Content is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        message = Message.objects.create(
+            consultation=consultation,
+            sender=sender,  # ✅ Fix: Assign the authenticated user, not a string
+            content=content
+        )
+
+        return Response(MessageSerializer(message).data, status=status.HTTP_201_CREATED)
+
+class GetMessagesView(generics.ListAPIView):
+    """Retrieve all messages for a given consultation"""
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        consultation_id = self.kwargs["consultation_id"]
+        return Message.objects.filter(consultation__consultation_id=consultation_id).order_by("timestamp")
