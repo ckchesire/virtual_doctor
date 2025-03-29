@@ -274,7 +274,7 @@ class SendMessageView(generics.CreateAPIView):
         consultation_id = kwargs.get("consultation_id")
         consultation = get_object_or_404(Consultation, consultation_id=consultation_id)
 
-        sender = request.user  # ✅ Automatically assign logged-in user
+        sender = request.user  # Automatically assign logged-in user
         content = request.data.get("content")
 
         if not content:
@@ -282,7 +282,7 @@ class SendMessageView(generics.CreateAPIView):
 
         message = Message.objects.create(
             consultation=consultation,
-            sender=sender,  # ✅ Fix: Assign the authenticated user, not a string
+            sender=sender,  # Fix: Assign the authenticated user, not a string
             content=content
         )
 

@@ -20,7 +20,7 @@ api.interceptors.request.use(
 
 const API_URL = "http://localhost:8000/api";
 
-export const fetchConsultations = async () => {
+export const fetchConsultation = async () => {
     const response = await fetch(`${API_URL}/consultations/`, { headers: authHeaders() });
     return response.json();
 };

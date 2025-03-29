@@ -6,7 +6,7 @@ import "../styles/admin-dashboard.css";
 function AdminDashboard() {
   const { user } = useAuth();
   
-  // ✅ Always define hooks at the top level
+  // Always define hooks at the top level
   const [pendingDoctors, setPendingDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [doctorDetails, setDoctorDetails] = useState({
@@ -50,7 +50,7 @@ function AdminDashboard() {
     }
   };
 
-  // ✅ Move role check inside return statement (DO NOT use hooks conditionally)
+  // Move role check inside return statement (aviod using hooks conditionally)
   if (user?.role !== "admin") {
     return <h2>Access Denied. Admins Only.</h2>;
   }
