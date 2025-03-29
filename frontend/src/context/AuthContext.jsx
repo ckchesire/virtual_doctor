@@ -6,6 +6,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true); //  Ensure we wait for auth check
 
   useEffect(() => {
     checkAuth();
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem(ACCESS_TOKEN);
     if (!token) {
       setUser(null);
+      setLoading(false);
       return;
     }
 
@@ -23,6 +25,8 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
     } catch (error) {
       logout();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,11 +34,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem(ACCESS_TOKEN);
     localStorage.removeItem(REFRESH_TOKEN);
     setUser(null);
-    window.location.href = "/login";  // ✅ Redirect without `useNavigate()`
+    window.location.href = "/login"; //  Redirect after logout
   };
 
   return (
-    <AuthContext.Provider value={{ user, logout }}>
+    <AuthContext.Provider value={{ user, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

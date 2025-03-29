@@ -156,7 +156,7 @@ class ConsultationCreateView(generics.CreateAPIView):
         
         appointment_id = self.request.data.get("appointment")
         try:
-            appointment = Appointment.objects.get(id=appointment_id)
+            appointment = Appointment.objects.get(appointment_id=appointment_id)
         except Appointment.DoesNotExist:
             return Response({"error": "Appointment not found"}, status=status.HTTP_404_NOT_FOUND)
             
@@ -164,6 +164,7 @@ class ConsultationCreateView(generics.CreateAPIView):
             return Response({"error": "Consultation already exists for this appointment"}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save(appointment=appointment)
+
 class ConsultationUpdateView(generics.UpdateAPIView):
     """Allow doctors to update and complete a consultation
     """

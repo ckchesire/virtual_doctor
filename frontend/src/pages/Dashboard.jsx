@@ -1,70 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  User, 
-  Calendar, 
-  MessageCircle, 
-  FileText, 
-  Search, 
-  Stethoscope 
-} from 'lucide-react';
-import '../styles/dashboard.css';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { User, Calendar, MessageCircle, FileText, Search, Stethoscope } from "lucide-react";
+import api from "../api";
+import { useAuth } from "../context/AuthContext";
+import "../styles/dashboard.css";
 
 function Dashboard() {
-  const [userName, setUserName] = useState('John Doe');
-  const [appointments, setAppointments] = useState([
-    { 
-      id: 1, 
-      doctor: "Dr. Sarah Johnson", 
-      type: "General Consultation", 
-      date: "March 8, 2025", 
-      time: "10:00 AM" 
-    }
-  ]);
+  const navigate = useNavigate();
+  const { user } = useAuth(); // Get user token from AuthContext
+  const [userName, setUserName] = useState(user?.name || user?.email || "Patient");
+  const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [recentConsultations, setRecentConsultations] = useState([
-    {
-      id: 1,
-      doctor: "Dr. Michael Chen",
-      type: "Follow-up Consultation",
-      date: "March 1, 2025",
-      status: "Completed"
-    }
-  ]);
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
 
-  const quickActions = [
-    { 
-      icon: <Stethoscope className="text-3xl text-blue-600" />, 
-      label: "Find Doctor", 
-      bgColor: "bg-blue-50" 
-    },
-    { 
-      icon: <Search className="text-3xl text-red-600" />, 
-      label: "Symptom Check", 
-      bgColor: "bg-red-50" 
-    },
-    { 
-      icon: <FileText className="text-3xl text-green-600" />, 
-      label: "Medical Records", 
-      bgColor: "bg-green-50" 
-    },
-    { 
-      icon: <MessageCircle className="text-3xl text-purple-600" />, 
-      label: "Message Doctor", 
-      bgColor: "bg-purple-50" 
+  // Fetch Appointments from API
+  const fetchAppointments = async () => {
+    try {
+      const response = await api.get("/api/appointments/", {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      setAppointments(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError("Failed to fetch appointments. Please try again.");
+      setLoading(false);
     }
-  ];
+  };
 
-  const healthReminders = [
-    "Remember to take your medication daily",
-    "Next follow-up: In 2 weeks"
-  ];
+  const handleJoinConsultation = (status) => {
+    if (status === "ongoing") {
+      navigate("/consultation");
+    } else {
+      alert("Your consultation has not started yet.");
+    }
+  };
+
+  if (loading) return <p>Loading dashboard...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1 className="dashboard-title">
-          Welcome, {userName}
-        </h1>
+        <h1 className="dashboard-title">Welcome, {userName}</h1>
         <div className="profile-section">
           <User className="profile-icon" />
           <span className="profile-text">Profile</span>
@@ -75,22 +56,40 @@ function Dashboard() {
         {/* Upcoming Appointments */}
         <div className="dashboard-card appointments-card">
           <h2 className="card-title">Upcoming Appointments</h2>
-          {appointments.map(appt => (
-            <div key={appt.id} className="appointment-item">
-              <div className="appointment-details">
-                <h3 className="doctor-name">{appt.doctor}</h3>
-                <p className="appointment-type">{appt.type}</p>
-                <p className="appointment-datetime">
-                  {appt.date} • {appt.time}
-                </p>
+          {appointments.length > 0 ? (
+            appointments.map((appt) => (
+              <div key={appt.appointment_id} className="appointment-item">
+                <div className="appointment-details">
+                  <h3 className="doctor-name">
+                    Dr. {appt.doctor_first_name} {appt.doctor_last_name}
+                  </h3>
+                  <p className="appointment-type">{appt.appointment_type}</p>
+                  <p className="appointment-datetime">
+                    {new Date(appt.appointment_datetime).toLocaleString()}
+                  </p>
+                  <p className="appointment-id">
+                    <strong>Appointment ID:</strong> {appt.appointment_id}
+                  </p>
+                  <p className="appointment-status">
+                    <strong>Status:</strong> {appt.status}
+                  </p>
+                </div>
+                <button 
+                  className="consultation-btn"
+                  onClick={() => handleJoinConsultation(appt.status)}
+                >
+                  Join Consultation
+                </button>
               </div>
-              <button className="consultation-btn">
-                Join Consultation
-              </button>
-            </div>
-          ))}
-          <button className="book-appointment-btn">
-            <a href="/appointments" >Book New Appointment</a>
+            ))
+          ) : (
+            <p>No upcoming appointments.</p>
+          )}
+          <button 
+            className="book-appointment-btn"
+            onClick={() => navigate("/find-doctor")}
+          >
+            Book an Appointment
           </button>
         </div>
 
@@ -98,15 +97,20 @@ function Dashboard() {
         <div className="dashboard-card quick-actions-card">
           <h2 className="card-title">Quick Actions</h2>
           <div className="quick-actions-grid">
-            {quickActions.map((action, index) => (
+            {[
+              { icon: <Stethoscope className="text-3xl text-blue-600" />, label: "Find Doctor", bgColor: "bg-blue-50", action: () => navigate("/find-doctor") },
+              { icon: <Search className="text-3xl text-red-600" />, label: "Symptom Check", bgColor: "bg-red-50" },
+              { icon: <FileText className="text-3xl text-green-600" />, label: "Medical Records", bgColor: "bg-green-50" },
+              { icon: <MessageCircle className="text-3xl text-purple-600" />, label: "Message Doctor", bgColor: "bg-purple-50" }
+            ].map((action, index) => (
               <div 
                 key={index} 
                 className={`quick-action-item ${action.bgColor}`}
+                onClick={action.action}
+                style={{ cursor: "pointer" }}
               >
                 {action.icon}
-                <span className="quick-action-label">
-                  {action.label}
-                </span>
+                <span className="quick-action-label">{action.label}</span>
               </div>
             ))}
           </div>
@@ -115,31 +119,19 @@ function Dashboard() {
         {/* Recent Consultations */}
         <div className="dashboard-card consultations-card">
           <h2 className="card-title">Recent Consultations</h2>
-          {recentConsultations.map(consult => (
-            <div 
-              key={consult.id} 
-              className="consultation-item"
-            >
-              <div className="consultation-details">
-                <h3 className="doctor-name">{consult.doctor}</h3>
-                <p className="consultation-type">{consult.type}</p>
-                <p className="consultation-date">{consult.date}</p>
-              </div>
-              <span className="consultation-status">
-                {consult.status}
-              </span>
-            </div>
-          ))}
+          <div className="consultation-item">
+            <h3 className="doctor-name">Dr. Michael Chen</h3>
+            <p className="consultation-type">Follow-up Consultation</p>
+            <p className="consultation-date">March 1, 2025</p>
+            <span className="consultation-status">Completed</span>
+          </div>
         </div>
 
         {/* Health Reminders */}
         <div className="dashboard-card reminders-card">
           <h2 className="card-title">Health Reminders</h2>
-          {healthReminders.map((reminder, index) => (
-            <div 
-              key={index} 
-              className="reminder-item"
-            >
+          {["Remember to take your medication daily", "Next follow-up: In 2 weeks"].map((reminder, index) => (
+            <div key={index} className="reminder-item">
               <span className="reminder-icon">🔔</span>
               <p className="reminder-text">{reminder}</p>
             </div>

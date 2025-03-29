@@ -1,36 +1,70 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import api from "../api";
+import { useAuth } from "../context/AuthContext"; 
 import "../styles/appointments.css";
 
 function Appointments() {
+  const location = useLocation();
+  const { user } = useAuth(); // Get logged-in patient info
   const [appointments, setAppointments] = useState([]);
-  const [doctorId, setDoctorId] = useState(""); // Changed to Doctor ID
+  const [doctorId, setDoctorId] = useState(location.state?.doctorId || ""); // Prefill doctor ID
+  const [patientId, setPatientId] = useState(""); // Fetch patient ID
   const [datetime, setDatetime] = useState("");
   const [appointmentType, setAppointmentType] = useState("General Checkup");
   const [reason, setReason] = useState("");
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await api.get("/api/appointments/");
-        setAppointments(response.data);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-      }
-    };
     fetchAppointments();
+    fetchPatientId(); // Fetch patient ID when page loads
   }, []);
+
+  // Fetch logged-in patient ID
+  const fetchPatientId = async () => {
+    try {
+      const response = await api.get("/api/profile/", {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      setPatientId(response.data.id); // Store patient ID
+    } catch (error) {
+      console.error("Error fetching patient ID:", error);
+    }
+  };
+
+  const fetchAppointments = async () => {
+    try {
+      const response = await api.get("/api/appointments/", {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      setAppointments(response.data);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
+  };
 
   const handleBookAppointment = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post("/api/appointments/", {
-        doctor: doctorId, // Use Doctor ID instead
-        appointment_datetime: datetime,
-        status: "scheduled",
-        appointment_type: appointmentType,
-        reason,
-      });
+      const response = await api.post(
+        "/api/appointments/",
+        {
+          patient: patientId, // Use fetched patient ID
+          doctor: doctorId, // Use selected doctor ID
+          appointment_datetime: datetime,
+          status: "scheduled",
+          appointment_type: appointmentType,
+          reason,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user?.token}`,
+          },
+        }
+      );
       setAppointments([...appointments, response.data]);
 
       // Reset form fields

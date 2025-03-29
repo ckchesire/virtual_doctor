@@ -116,7 +116,7 @@ class Appointment(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"Appointment: {self.patient} with {self.doctor} on {self.appointment_datetime}"
+        return f"Appointment: {self.patient} with {self.doctor} ({self.doctor.first_name}  {self.doctor.last_name}) on {self.appointment_datetime}"
 
 class Consultation(models.Model):
     """Track telemedicine consultations

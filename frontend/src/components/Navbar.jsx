@@ -13,7 +13,9 @@ function Navbar() {
           <Link to="/">Home</Link>
           {user ? (
             <>
-              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/dashboard">Patient Dashboard</Link>
+              <Link to="/admin">Doctor Dashboard</Link>
+              <Link to="/admin">Admin Dashboard</Link>
               <Link to="/profile">Profile</Link>
               <Link to="/appointments">Appointments</Link>
               <Link to="/consultations">Consultations</Link>

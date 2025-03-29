@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route , Navigate} from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -11,10 +11,17 @@ import DoctorDashboard from "./pages/DoctorDashboard";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Logout from "./pages/Logout";  // Import Logout component
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
+import AdminDashboard from "./pages/AdminDashboard";
+import FindDoctor from "./pages/FindDoctor";
+
 
 function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) return <h2>Loading...</h2>;
+
   return (
     <Router>
       <AuthProvider>
@@ -26,7 +33,15 @@ function App() {
           <Route path="/logout" element={<Logout />} />  {/* Correct Logout */}
           <Route path="/" element={<Home />} />  {/* Correct Logout */}
 
+          {/* Admin Route - Only accessible to admins */}
+          <Route
+          path="/admin"
+          element={
+            user && user.role === "admin" ? <AdminDashboard /> : <Navigate to="*" />
+          }
+        />
 
+        
           {/* Protected Routes */}
           <Route 
             path="/dashboard" 
@@ -68,6 +83,17 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
+          <Route 
+          path="/find-doctor" 
+          element={
+            <ProtectedRoute>
+              <FindDoctor />
+            </ProtectedRoute>
+          } 
+        />
+
+
           {/* 404 Not Found Page */}
           <Route path="*" element={<NotFound />} />
         </Routes>
