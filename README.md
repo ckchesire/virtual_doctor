@@ -5,7 +5,6 @@ A modern telemedicine platform that connects patients with healthcare providers 
 ## Overview
 
 Virtual Doctor is a comprehensive telemedicine solution that enables:
-- Real-time video consultations between patients and doctors
 - Secure messaging for medical communication
 - Digital medical records management
 - Appointment scheduling and management
